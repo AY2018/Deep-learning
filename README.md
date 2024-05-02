@@ -15,4 +15,7 @@ Full Jupyter Notebooks
 
 ## Chapitre 3 : (En cours)
 
-- Projet 1 
+Full Jupyter Notebooks : 
+- Classification Binaire
+- Classification Multiple
+- Regréssion 
