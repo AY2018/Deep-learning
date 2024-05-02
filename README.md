@@ -19,3 +19,4 @@ Full Jupyter Notebooks :
 - Classification Binaire
 - Classification Multiple
 - Regréssion 
+
