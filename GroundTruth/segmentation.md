@@ -142,6 +142,7 @@ Nous allons donc segmenter une trentaine d'image via Kraken pour récupérer une
 
 ## Solution 1 : Utiliser escriptorium 
 
+[https://escriptorium.readthedocs.io/en/latest/segment/]
 Escriptorium permet de modifier les polygones après segmentation. 
 
 ## Solution 2 : Utiliser VIA (Oxford)
