@@ -1,6 +1,7 @@
 # Repo livre Apprentissage Profond Avec Python
 
-
+## GroundTruth 
+Dossier avec des infos sur les étapes pour réaliser la vérité de terrain
 
 ## Chapitre 1 : (Ajouter les questions/réponses + le XMIND)
 Vous trouvez le fichier `.drawio` dans le dossier Chapter1 / ou via le lien : [https://drive.google.com/file/d/1W1dpmwSZkTfBCcim0FZD4gXbNFGCwkfb/view?usp=sharing]
