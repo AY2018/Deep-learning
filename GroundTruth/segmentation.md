@@ -3,16 +3,46 @@
 Pour segementer une image via Kraken (on utilise la version **4.3.12**): 
 
 ``` bash
-kraken --alto  -i image.jpg output.xml segment -bl -i modele.mlmodel
+kraken --alto  -i image.jpg -o output.xml segment -bl -i modele.mlmodel
 ```
 
 Pour segmenter plusieurs images :
 
 ``` bash
-kraken --alto  -I '*.jpg' '*.xml' segment -bl -i modele.mlmodel
+kraken --alto  -I '*.jpg' -o '*.xml' segment -bl -i modele.mlmodel
 ```
 
+Segmentation Baseline 
 Output = XML Alto 
+
+
+## Segmentation de Page dans Kraken
+
+Kraken propose deux méthodes de segmentation de page : la segmentation Baseline et la segmentation Legacy Box.
+
+### Segmentation Baseline
+* Utilise un modèle de segmentation pour étiqueter chaque pixel, distinguant les lignes et les régions.
+* Modèle par défaut adapté aux documents imprimés et manuscrits sur papier.
+* Des modèles personnalisés peuvent être entraînés pour des types de documents spécifiques.
+* Activée avec l'option `-bl`.
+
+### Segmentation Legacy Box
+* Produit des boîtes rectangulaires dans l'ordre de lecture.
+* !!! Nécessite des images d'entrée binarisées
+* Des paramètres spécifiques sont disponibles pour la personnalisation.
+
+### Direction de Texte Principale
+* Cruciale pour déterminer l'ordre des blocs de texte et des lignes `-d/–text-direction`
+* Les options incluent `horizontal-lr`, `horizontal-rl``, vertical-lr` et `vertical-rl`.
+* Dépend de l'orientation du script et de l'ordre de lecture.
+
+### Masquage
+* Permet de bloquer certaines zones de la segmentation en utilisant des images de masque binaires.
+* Image de madque a la même taille que l'image + régions que l'on veut guarder sont blanches (noire pour reste)
+```bash
+kraken -i input.jpg segmentation.json segment -bl -m mask.png
+```
+
 
 # Fichier Alto 
 
