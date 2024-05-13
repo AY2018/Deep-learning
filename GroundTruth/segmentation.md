@@ -61,6 +61,7 @@ Dans notre cas, le fichier alto est structuré de la manière suivante :
 <alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns="http://www.loc.gov/standards/alto/ns-v4#"
       xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v4# http://www.loc.gov/standards/alto/v4/alto-4-2.xsd">
+      
   <Description>
     <MeasurementUnit>pixel</MeasurementUnit>
     <sourceImageInformation>
