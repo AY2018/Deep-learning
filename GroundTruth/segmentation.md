@@ -15,6 +15,10 @@ kraken --alto  -I '*.jpg' -o '*.xml' segment -bl -i modele.mlmodel
 Segmentation Baseline 
 Output = XML Alto 
 
+## Exemple avec une image d'une Stelle 
+
+![00043.jpg](00043Segment.png)
+
 
 ## Segmentation de Page dans Kraken
 
@@ -28,7 +32,7 @@ Kraken propose deux méthodes de segmentation de page : la segmentation Baseline
 
 ### Segmentation Legacy Box
 * Produit des boîtes rectangulaires dans l'ordre de lecture.
-* !!! Nécessite des images d'entrée binarisées
+* !! Nécessite des images d'entrée binarisées
 * Des paramètres spécifiques sont disponibles pour la personnalisation.
 
 ### Direction de Texte Principale
@@ -54,7 +58,7 @@ Dans notre cas, alto va nous permettre de localiser les lignes de textes (les po
 
 Utilisation dans la numérisation de bibliothèques : Les bibliothèques et les archives utilisent le format ALTO pour la numérisation de leurs collections car il aide à préserver les informations sur l'organisation originale des documents tout en fournissant un accès au texte via l'OCR.
 
-Dans notre cas, le fichier alto est structuré de la manière suivante : 
+Revenons sur l'exemple de l'image que l'on a segmenté, le fichier xml alto produit est structuré de la manière suivante : 
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -65,21 +69,26 @@ Dans notre cas, le fichier alto est structuré de la manière suivante :
   <Description>
     <MeasurementUnit>pixel</MeasurementUnit>
     <sourceImageInformation>
-      <fileName>00073.jpg</fileName>
+      <fileName>00043.jpg</fileName>
     </sourceImageInformation>
   </Description>
   
   <Tags>
-    <OtherTag ID="BT1" LABEL="Title" DESCRIPTION="block type Title"/>
-    <!-- D'autres balises OtherTag peuvent être incluses ici pour d'autres types de contenu -->
+        <OtherTag ID="TYPE_1" LABEL="default"/>
+        <OtherTag ID="TYPE_2" LABEL="text"/>
+        <OtherTag ID="TYPE_3" LABEL="Title"/>
+        <OtherTag ID="TYPE_4" LABEL="SteleArea"/>
+        <OtherTag ID="TYPE_5" LABEL="Commentary"/>
+        <OtherTag ID="TYPE_6" LABEL="Numbering"/>
+        <OtherTag ID="TYPE_7" LABEL="Intext"/>
   </Tags>
   
   <Layout>
     <Page WIDTH="3840" HEIGHT="4900" PHYSICAL_IMG_NR="0" ID="eSc_dummypage_">
       <PrintSpace HPOS="0" VPOS="0" WIDTH="3840" HEIGHT="4900">
-        <TextBlock HPOS="98" VPOS="228" WIDTH="3476" HEIGHT="4667" ID="eSc_textblock_de2d64cc" TAGREFS="BT1">
+        <TextBlock ID="block_2" HPOS="335" VPOS="176" WIDTH="3434" HEIGHT="5057" TAGREFS="TYPE_4">
           <TextLine ID="eSc_line_2516d9d8" TAGREFS="LT15290" HPOS="1883" VPOS="1351" WIDTH="171" HEIGHT="359">
-            <String CONTENT="Texte ici" HPOS="1883" VPOS="1351" WIDTH="171" HEIGHT="359"/>
+            <String CONTENT=""/>
           </TextLine>
           <!-- Autres balises TextLine -->
         </TextBlock>
@@ -114,7 +123,7 @@ La balise racine qui définit que le document est au format ALTO. Elle inclut de
 
 #### `<TextBlock>`
 
-Spécifie un bloc de texte dans l'espace imprimable. Contient des coordonnées, dimensions, et peut-être référencé à un type spécifique défini dans `<Tags>`.
+Spécifie un bloc de texte dans l'espace imprimable. Contient des coordonnées, dimensions, et peut-être référencé à un type spécifique défini dans `<Tags>`. Ici, le TextBlock correspond à la zone de la Stele (SteleArea). Il comprend un polygone individuel qui enrobe toute la stele, et plusieurs TextLines qui correspondent aux différentes lignes de texte. 
 
 #### `<TextLine>`
 Représente une ligne de texte individuelle dans un bloc de texte. Elle inclut aussi des coordonnées et des dimensions.
@@ -137,13 +146,13 @@ Format de fichier utilisé pour coder les métadonnées descriptives, administra
         
       <!-- Détaille un fichier individuel au sein d'un groupe de fichiers. -->
       <file ID="image1">
-        <FLocat xlink:href="00054.jpg"/>
+        <FLocat xlink:href="00043.jpg"/>
       </file>
     </fileGrp>
 
     <fileGrp USE="export">
       <file ID="export1">
-        <FLocat xlink:href="00054.xml"/>
+        <FLocat xlink:href="00043.xml"/>
       </file>
     </fileGrp>
   </fileSec>
@@ -165,21 +174,176 @@ Format de fichier utilisé pour coder les métadonnées descriptives, administra
 
 ***En Bref : Alto va permettre de structurer notre image (coordonnées des différentes régions, et inclut le contenu après OCR). C'est l'étiquette qu'on va utiliser pour entrainer notre modèle. Le fichier METS quant à lui permet de structuré les métadonnées de notre images (lié le code xml alto à l'image en question).***
 
-# Corriger les polygones : quel outil ? 
+# Opérations sur le fichier XML Alto 
 
-Nous sommes en phase de préparation pour entrainer le modèle. Pour se faire, il nous faut une vérité de terrain que l'on va utiliser pour l'entrainer. 
+On a récupérer le fichier XML de segmentation. On peut maintenant effectuer des opérations sur ces données. 
 
-Nous allons donc segmenter une trentaine d'image via Kraken pour récupérer une segmentation de base (ficher alto). Il faut ensuite corrigé cette segmentation pour chaque image. 
+XPath nous permet de naviguer notre fichier xml. Revenons sur notre fichier xml alto : 
 
-## Solution 1 : Utiliser escriptorium 
+```xml 
+<Layout>
+    <Page WIDTH="3840" HEIGHT="4900" PHYSICAL_IMG_NR="0" ID="eSc_dummypage_">
+      <PrintSpace HPOS="0" VPOS="0" WIDTH="3840" HEIGHT="4900">
+        <TextBlock ID="block_2" HPOS="335" VPOS="176" WIDTH="3434" HEIGHT="5057" TAGREFS="TYPE_4">
+          <!-- Shape = Polygone qui enrobe la stelle en entière -->
+          <Shape>
+              <Polygon POINTS="820 176 3363 176 3592 317 3734 899 3734 1141 3628 1199 3628 1318 3751 1358 3751 1900 3632 1794 3610 2023 3628 2288 3681 2310 3734 2222 3751 2292 3769 5198 2025 5233 335 5180 353 458 476 299 820 176"/>
+          </Shape>
+          <TextLine ID="eSc_line_2516d9d8" TAGREFS="LT15290" HPOS="1883" VPOS="1351" WIDTH="171" HEIGHT="359">
+            <!-- Shape qui entoure une ligne -->
+            <Shape>
+              <Polygon POINTS="820 176 3363 176 3592 317 3734 899 3734 1141 3628 1199 3628 1318 3751 1358 3751 1900 3632 1794 3610 2023 3628 2288 3681 2310 3734 2222 3751 2292 3769 5198 2025 5233 335 5180 353 458 476 299 820 176"/>
+            </Shape>
+            <String CONTENT=""/>
+          </TextLine>
+          <!-- Autres balises TextLine -->
+        </TextBlock>
+        <!-- Autres balises TextBlock  -->
+      </PrintSpace>
+    </Page>
+  </Layout>
+```
 
-[https://escriptorium.readthedocs.io/en/latest/segment/]
-Escriptorium permet de modifier les polygones après segmentation. 
+On observe que l'on a deux types de noeud `Shape`, un qui est enfant direct du `TextBlock` et l'autre qui enfant de la balise `Textline`. 
 
-## Solution 2 : Utiliser VIA (Oxford)
+Ce qui nous intéresse, c'est le second. Comment le récupérer ? 
 
-Avantage de VIA : Manipulation plus simple des polygones 
+```XML
+alto:TextBlock/alto:TextLine/alto:Shape/alto:Polygon/@POINTS
+```
 
-Désavantage : N'accepte que des fichiers de types JSON,CSV,COCO
+**XPATH permet de viser les données que l'on veut dans un fichier XML**
 
-Solution ? Transformer le fichier xml en json > faire la modification sur VIA > export en JSON > Convertir en Alto via mapping 
+Ok, on a récupéré nos données maintenant, disons que j'aimerais pouvoir voir le nombre de lignes de texte que j'ai et les coordonnées de chaque : pour ce faire, on utilisera un fichier XSLT : 
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:alto="http://www.loc.gov/standards/alto/ns-v4#">
+    <xsl:output method="html" indent="yes" />
+    <xsl:template match="/">
+        <html>
+            <head>
+                <title>Test</title>
+            </head>
+            <body>
+                <table border="1">
+                    <tr>
+                        <th>ID de la ligne</th>
+                        <th>Coordonnées du Polygone</th>
+                    </tr>
+                    <xsl:for-each select="//alto:TextLine">
+                        <tr>
+                            <td>
+                                <xsl:value-of select="@ID" />
+                            </td>
+                            <td>
+                                <xsl:value-of select="alto:Shape/alto:Polygon/@POINTS" />
+                            </td>
+                        </tr>
+                    </xsl:for-each>
+                </table>
+            </body>
+        </html>
+    </xsl:template>
+</xsl:stylesheet>
+```
+
+On créer ici un tableau et récupère les données de chaque `TextLine`
+
+`<xsl:for-each select="//alto:TextLine">`
+
+Pour ensuite récupérer la valeur de chaque ID de la Texline en question `<xsl:value-of select="@ID" />` ainsi que les coordonnées du Polygone de cette ligne `<xsl:value-of select="alto:Shape/alto:Polygon/@POINTS" />`.
+
+On a donc créer un tableau, qui, à priori devrait pouvoir afficher toutes nos lignes de textes ainsi que leur ID. 
+
+Il ne nous reste plus qu'à transformer notre fichier xml en fichier html pour pouvoir visualiser ce tableau. 
+
+En Python, on peut utiliser la librairie **lxml** pour transformer notre fichier xml en fichier html 
+
+```python
+from lxml import etree
+
+def transformer_xml_en_xhtml(xml_path, xslt_path):
+    # Load XML
+    xml_tree = etree.parse(xml_path)
+
+    # Load XSLT as bytes
+    with open(xslt_path, 'rb') as f:  
+        xslt_content = f.read()
+    xslt_tree = etree.XML(xslt_content)
+    transform = etree.XSLT(xslt_tree)
+
+    # Perform the transformation
+    result_tree = transform(xml_tree)
+
+    
+    result_str = str(result_tree)
+    print(result_str)
+    
+    # Créer un fichier xhtml
+    with open('00043.xhtml', 'w') as f:
+        f.write(result_str)
+
+
+transformer_xml_en_xhtml('00043.xml', '00043.xslt')
+```
+
+Cela nous créer le fichier suivant : 
+
+```html
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:alto="http://www.loc.gov/standards/alto/ns-v4#"
+>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Test</title>
+  </head>
+
+  
+  <body>
+    <table border="1">
+      <tr>
+        <th>ID de la ligne</th>
+        <th>Coordonnées du Polygone</th>
+      </tr>
+      <tr>
+        <td>line_1</td>
+        <td>
+          1072 4387 931 4387 904 4514 904 4519 904 4523 931 4581 909 4673 909
+          4678 909 4682 909 4686 940 4744 1081 4744 1302 4722 1257 4634 1280
+          4589 1280 4585 1280 4581 1280 4576 1280 4572 1275 4572 1244 4537 1257
+          4378 1072 4387
+        </td>
+      </tr>
+      <tr>
+        <td>line_2</td>
+        <td>
+          1249 3090 1315 2962 1315 2958 1324 2835 1324 2830 1324 2826 1324 2821
+          1280 2760 1306 2724 1306 2720 1306 2716 1306 2711 1306 2707 1271 2627
+          1253 2583 1253 2411 1284 2380 1328 2332 1332 2332 1332 2328 1332 2323
+          1337 2323 1337 2253 1332 2248 1315 2134 1315 2129 1315 2125 1297 2103
+          1262 2045 1288 1895 1288 1891 1288 1887 1288 1882 1253 1825 1253 1666
+          1310 1596 1310 1591 1310 1587 1310 1582 1310 1578 1280 1516 1332 1441
+          1332 1437 1332 1432 1337 1283 1156 1283 1059 1278 1063 1591 1059 1600
+          1032 1631 1028 1631 1028 1635 1028 1640 1028 1644 1028 1649 1054 1719
+          1024 1798 1024 1803 1024 1807 1024 1812 1059 1913 1063 1922 1059 1931
+          1024 1988 1024 1992 1024 1997 1024 2001 1024 2164 1024 2169 1059 2248
+          1032 2292 1032 2297 1032 2301 1032 2305 1050 2425 1024 2469 1024 2473
+          1024 2477 1024 2482 1024 2751 1068 3086 1152 3090 1249 3090
+        </td>
+      </tr>
+...
+```
+Résultat :
+![epok](table.png)
+
+**Le format XSLT s'occupe de l'output et de transformer le fichier xml, tandis que XPath permet de viser et récupérer les éléments que l'on veut.**
+
+On peut utiliser XSLT pour transformer notre fichier XML en plusieurs formats : 
+- HTML
+- SVG
+- XML (différente structure)
+- JSON
