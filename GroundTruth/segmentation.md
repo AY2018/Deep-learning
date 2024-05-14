@@ -3,7 +3,7 @@
 Pour segementer une image via Kraken (on utilise la version **4.3.12**): 
 
 ``` bash
-kraken --alto  -i image.jpg -o output.xml segment -bl -i modele.mlmodel
+kraken --alto  -i image.jpg  output.xml segment -bl -i modele.mlmodel
 ```
 
 Pour segmenter plusieurs images :
@@ -16,6 +16,10 @@ Segmentation Baseline
 Output = XML Alto 
 
 ## Exemple avec une image d'une Stelle 
+
+```bash
+kraken --alto  -i 00043.jpg  0043.xml segment -bl -i modele_47.mlmodel
+```
 
 ![00043.jpg](00043Segment.png)
 
@@ -345,5 +349,5 @@ Résultat :
 On peut utiliser XSLT pour transformer notre fichier XML en plusieurs formats : 
 - HTML
 - SVG
-- XML (différente structure)
+- XML (mais avec une structure différente)
 - JSON
