@@ -351,3 +351,4 @@ On peut utiliser XSLT pour transformer notre fichier XML en plusieurs formats :
 - SVG
 - XML (mais avec une structure différente)
 - JSON
+
