@@ -29,15 +29,18 @@ kraken --alto  -i 00043.jpg  0043.xml segment -bl -i modele_47.mlmodel
 Kraken propose deux méthodes de segmentation de page : la segmentation Baseline et la segmentation Legacy Box.
 
 ### Segmentation Baseline
-* Utilise un modèle de segmentation pour étiqueter chaque pixel, distinguant les lignes et les régions.
-* Modèle par défaut adapté aux documents imprimés et manuscrits sur papier.
-* Des modèles personnalisés peuvent être entraînés pour des types de documents spécifiques.
-* Activée avec l'option `-bl`.
 
-### Segmentation Legacy Box
-* Produit des boîtes rectangulaires dans l'ordre de lecture.
-* !! Nécessite des images d'entrée binarisées
-* Des paramètres spécifiques sont disponibles pour la personnalisation.
+= identifier et classer chaque pixel de l'image. 
+
+- **Étiquetage de pixels** : Un modèle de segmentation est appliqué à l'image de la page pour étiqueter chaque pixel selon qu'il appartient à une ligne de texte, une marge, ou une autre région spécifique. Cette étape produit une image de classification où chaque type de contenu a une étiquette distincte.
+
+- **Création de heatmap** : Après l'étiquetage, une "carte thermique" (heatmap) est générée pour visualiser la distribution des différentes classes sur l'image. Cette visualisation aide à identifier les zones contenant du texte.
+
+- **Vectorisation** : La carte thermique est ensuite convertie en vecteurs, ce qui permet d'extraire des instances précises de lignes de texte et de frontières de régions. Cette étape transforme les données de pixel en structures plus gérables comme des lignes et des polygones.
+
+- **Calcul de polygones** : À partir des vecteurs, des polygones englobants sont calculés pour chaque ligne de texte. Ces polygones représentent les contours exacts des lignes de texte, ce qui est utile pour la reconnaissance ultérieure des caractères.
+
+- **Ordre des lignes de texte** : Enfin, un ordre est établi pour les lignes de texte vectorisées, ce qui est crucial pour maintenir la séquence de lecture correcte dans le document final.
 
 ### Direction de Texte Principale
 * Cruciale pour déterminer l'ordre des blocs de texte et des lignes `-d/–text-direction`
